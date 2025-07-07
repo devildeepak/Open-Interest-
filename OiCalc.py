@@ -2,9 +2,23 @@ import streamlit as st
 from PIL import Image
 import pytesseract
 import re
+import matplotlib.pyplot as plt
 
+# ✅ Define helper function first
+def plot_pie_chart(put_oi, call_oi):
+    labels = ['Put OI', 'Call OI']
+    sizes = [put_oi, call_oi]
+    colors = ['#4CAF50', '#2196F3']
+    explode = (0.05, 0)  # highlight Put OI
+
+    fig, ax = plt.subplots()
+    ax.pie(sizes, explode=explode, labels=labels, colors=colors,
+           autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')  # Equal aspect ratio ensures pie is circular.
+    return fig
+
+# Streamlit UI
 st.set_page_config(page_title="OI Analyzer", layout="centered")
-
 st.title("📊 Option Chain OI Analyzer")
 
 uploaded_file = st.file_uploader("Upload an option chain image", type=["jpg", "png", "jpeg"])
@@ -14,17 +28,14 @@ if uploaded_file is not None:
     st.image(image, caption='Uploaded Image', use_column_width=True)
 
     if st.button("Analyze"):
-        # Step 1: OCR
         text = pytesseract.image_to_string(image)
 
-        # Step 2: Extract numbers
         numbers = re.findall(r'\d[\d,]*', text)
         numbers = [int(num.replace(',', '')) for num in numbers]
 
         if len(numbers) < 3:
             st.error("Could not find enough numbers in the image. Try a clearer image.")
         else:
-            # Step 3: Assuming structure: put OI, strike, call OI, ...
             puts = numbers[::3]
             calls = numbers[2::3]
 
@@ -42,24 +53,6 @@ if uploaded_file is not None:
             st.write(f"**Total Call OI:** {total_call_oi:,} ({call_percent:.2f}%)")
             st.write(f"**Difference (Put - Call):** {diff:,}")
 
-            # Optional: Pie chart
-            st.subheader("📊 OI Distribution")
-            st.pyplot(
-                plot_pie_chart(total_put_oi, total_call_oi)
-            )
-
-
-def plot_pie_chart(put_oi, call_oi):
-    import matplotlib.pyplot as plt
-
-    labels = ['Put OI', 'Call OI']
-    sizes = [put_oi, call_oi]
-    colors = ['#4CAF50', '#2196F3']
-    explode = (0.05, 0)  # highlight Put OI
-
-    fig, ax = plt.subplots()
-    ax.pie(sizes, explode=explode, labels=labels, colors=colors,
-           autopct='%1.1f%%', startangle=90)
-    ax.axis('equal')  # Equal aspect ratio ensures pie is circular.
-    return fig
-  
+            # ✅ Call function to show chart
+            fig = plot_pie_chart(total_put_oi, total_call_oi)
+            st.pyplot(fig)
