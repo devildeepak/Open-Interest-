@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 8501
 
 # Start Streamlit app
-CMD ["streamlit", "run", "oi_dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "OiCalc.py", "--server.port=8501", "--server.address=0.0.0.0"]
