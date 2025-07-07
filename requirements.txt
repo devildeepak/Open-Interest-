@@ -1,1 +1,4 @@
-pytesseract pillow
+streamlit
+pytesseract
+Pillow
+matplotlib
